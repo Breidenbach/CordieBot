@@ -12,8 +12,8 @@
 
  */
 
-#ifndef __SD_H__
-#define __SD_H__
+#ifndef __SDcb_H__
+#define __SDcb_H__
 
 #if ARDUINO >= 100
 #include "Arduino.h"

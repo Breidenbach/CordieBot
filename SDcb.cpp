@@ -1,5 +1,5 @@
 /*
-
+  SDcb - renamed to avoid confusion with Arduino standard library
  SD - a slightly more friendly wrapper for sdfatlib
 
  This library aims to expose a subset of SD card functionality
@@ -50,7 +50,7 @@
 
  */
 
-#include "SD.h"
+#include "SDcb.h"
 
 // Used by `getNextPathComponent`
 #define MAX_COMPONENT_LEN 12 // What is max length?

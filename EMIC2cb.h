@@ -1,4 +1,8 @@
 /**
+ * New name:  EMIC2cb.h
+ * Modified 4/July/2016 by Hal Breidenbach
+ * Use Serial1 for emic2 communication, use datalogger SD shield for SD card
+ *
  * Name: EMIC2
  * Author: Nick Lamprianidis (lampnick67@yahoo.com)
  * Version: 1.0
@@ -12,12 +16,12 @@
  * File description: Definitions and methods for the EMIC2 library
  */
 
-#ifndef EMIC2_h
-#define EMIC2_h
+#ifndef EMIC2cb_h
+#define EMIC2cb_h
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
-#include <SD.h>
+//#include <SoftwareSerial.h>
+#include <SDcb.h>
 #include <string.h>
 
 // #define VERBOSE true // Use this if you want verbose output of the operations executed
@@ -32,6 +36,7 @@ public:
 	~EMIC2();
 	void begin(uint8_t rx_pin, uint8_t tx_pin);
 	void begin(uint8_t rx_pin, uint8_t tx_pin, uint8_t cs_pin);
+	void begin(uint8_t cs_pin);
 	void speak(char *msg);
 	void speak(String msg);
 	void speak(char num);
@@ -75,7 +80,7 @@ public:
 	void getVInfo();
 
 private:
-	SoftwareSerial *_emic2_io;
+//	SoftwareSerial *_emic2_io;
 	uint8_t _paused;
 	uint8_t _voice;
 	int8_t _volume;

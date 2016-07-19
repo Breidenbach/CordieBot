@@ -1,4 +1,8 @@
 /**
+ * New name:  EMIC2cb.cpp
+ * Modified 4/July/2016 by Hal Breidenbach
+ * Use Serial1 for emic2 communication, use datalogger SD shield for SD card
+ *
  * Name: EMIC2
  * Author: Nick Lamprianidis (lampnick67@yahoo.com)
  * Version: 1.0
@@ -12,7 +16,8 @@
  * File description: Implementation of methods for the EMIC2 library
  */
 
-#include "EMIC2.h"
+#include "EMIC2cb.h"
+#define VERBOSE
 
 // Creates an instance of the EMIC2 class and initializes variables
 EMIC2::EMIC2()
@@ -30,28 +35,33 @@ EMIC2::EMIC2()
 // it frees dynamically allocated data members
 EMIC2::~EMIC2()
 {
-    delete _emic2_io;
+    //delete _emic2_io;
 }
 
 // Initializes serial port and checks for availability of the Emic 2 module
 void EMIC2::begin(uint8_t rx_pin, uint8_t tx_pin)
 {
+ //   _emic2_io = new SoftwareSerial(rx_pin, tx_pin);
+    #ifdef EMIC2cb_h
+    #define _emic2_io Serial1
+    #else
     _emic2_io = new SoftwareSerial(rx_pin, tx_pin);
-    _emic2_io->begin(9600);
+    #endif
+    _emic2_io.begin(9600);
     
     #ifdef VERBOSE
-    Serial.println("Serial Port is set");
+    Serial.println("Serial Port is set to Serial1");
     #endif
 
     // When the Emic 2 powers on, it takes about 3 seconds for it to successfully initialize
     // It then sends a ":" character to indicate it's ready to accept commands
     // If the Emic 2 is already initialized, a CR will also causes it to send a ":"
-    _emic2_io->print('\n');  // Sends a CR in case the system is already up
-    while ( _emic2_io->read() != ':' ) ;  // When the Emic 2 has initialized and is ready, 
+    _emic2_io.print('\n');  // Sends a CR in case the system is already up
+    while ( _emic2_io.read() != ':' ) ;  // When the Emic 2 has initialized and is ready, 
                                           // it will send a single ':' character...
                                           // so it waits here until it receives the ':'
     delay(10);  // Short delay
-    _emic2_io->flush();  // Flushs receive buffer
+    _emic2_io.flush();  // Flushs receive buffer
 
     #ifdef VERBOSE
     Serial.println("Emic 2 Module is ready");
@@ -79,13 +89,34 @@ void EMIC2::begin(uint8_t rx_pin, uint8_t tx_pin, uint8_t cs_pin)
     #endif
 }
 
+// Initializes serial port and SD card, and checks for availability of the Emic 2 module
+// customized to use Serial1 and adafruit SD datalogger shield
+void EMIC2::begin( uint8_t cs_pin)
+{
+    begin(0, 1); // Initializes serial port
+
+    #if defined(__AVR_ATmega2560__)
+    pinMode(53, OUTPUT); // Sets the hardware SS pin on Arduino Mega to output
+    #else
+    pinMode(10, OUTPUT); // Sets the hardware SS pin on the rest of Arduino boards to output
+    #endif
+
+    _sd = 1;  // Indicator of availability of messages to speak, in the SD card
+    uint8_t chk = SD.begin(cs_pin, 11, 12, 13);  // Initializes SD card
+ 
+    #ifdef VERBOSE
+    if ( !chk ) Serial.println("SD card failed, or not present");
+    else Serial.println("SD card initialized");
+    #endif
+}
+
 // Waits (Blocking) until Emic 2 is ready to receive a command
 void EMIC2::ready()
 {
-    _emic2_io->listen();
-    _emic2_io->flush();  // Flushes receive buffer
-    _emic2_io->print('\n');  // Triggers response
-    while (_emic2_io->read() != ':') ;  // Awaits for ':' indicator
+//    _emic2_io.listen();
+    _emic2_io.flush();  // Flushes receive buffer
+    _emic2_io.print('\n');  // Triggers response
+    while (_emic2_io.read() != ':') ;  // Awaits for ':' indicator
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -99,9 +130,9 @@ void EMIC2::speak(char *msg)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(msg);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(msg);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -115,9 +146,9 @@ void EMIC2::speak(String msg)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(msg);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(msg);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -131,9 +162,9 @@ void EMIC2::speak(char num)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(num);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(num);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -147,9 +178,9 @@ void EMIC2::speak(unsigned char num)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(num);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(num);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -163,9 +194,9 @@ void EMIC2::speak(int num)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(num);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(num);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -179,9 +210,9 @@ void EMIC2::speak(unsigned int num)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(num);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(num);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -195,9 +226,9 @@ void EMIC2::speak(long num)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(num);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(num);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -211,9 +242,9 @@ void EMIC2::speak(unsigned long num)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(num);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(num);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -227,9 +258,9 @@ void EMIC2::speak(double num)
     #endif
 
     // Sends the desired string to convert to speech
-    _emic2_io->print('S');
-    _emic2_io->print(num);
-    _emic2_io->print('\n');
+    _emic2_io.print('S');
+    _emic2_io.print(num);
+    _emic2_io.print('\n');
 }
 
 // Sends a message to the Emic 2 module to speak
@@ -240,7 +271,7 @@ void EMIC2::speak(char *filename, uint8_t sd)
     if ( _sd )  // Checks if the SD card has been initiliazed
     {
         // Creates the file path
-        char path[20] = "/emic2/";
+        char path[30] = "/emic2/";
         strcat(path, filename);
 
         #ifdef VERBOSE
@@ -264,7 +295,7 @@ void EMIC2::speak(char *filename, uint8_t sd)
             while ( f.available() )  // Sends a message for every line in the file
             {
                 ready();
-                _emic2_io->print('S');
+                _emic2_io.print('S');
 
                 while ( ( ( c = f.read() ) != '\n' ) && ( c != -1 ) )
                 {
@@ -272,14 +303,14 @@ void EMIC2::speak(char *filename, uint8_t sd)
                     Serial.print(c);
                     #endif
 
-                    _emic2_io->print(c);  // Sends characters one by one
+                    _emic2_io.print(c);  // Sends characters one by one
                 }
 
                 #ifdef VERBOSE
                 Serial.println();
                 #endif
 
-                _emic2_io->print('\n');  // Finishes the message (line)
+                _emic2_io.print('\n');  // Finishes the message (line)
             }
 
             f.close();
@@ -323,9 +354,9 @@ void EMIC2::speakDemo(uint8_t num)
         ready();
 
         // Sends demo command
-        _emic2_io->print('D');
-        _emic2_io->print(num);
-        _emic2_io->print('\n');
+        _emic2_io.print('D');
+        _emic2_io.print(num);
+        _emic2_io.print('\n');
 
         #ifdef VERBOSE
         Serial.print("Plays demo ");
@@ -344,17 +375,17 @@ void EMIC2::sendCmd(char *cmd)
     Serial.println(cmd);
     #endif
 
-    _emic2_io->print(cmd);  // Sends command
+    _emic2_io.print(cmd);  // Sends command
 }
 
 // Pauses/Unpauses playback
 EMIC2& EMIC2::operator~()
 {
-    _emic2_io->listen();
+ //   _emic2_io.listen();
     // Sends pause/unpause command
-    _emic2_io->print('Z');
+    _emic2_io.print('Z');
     uint8_t val;
-    while ((val = _emic2_io->read()) != '.' && val != ':') ;
+    while ((val = _emic2_io.read()) != '.' && val != ':') ;
 
     _paused = !_paused;  // Updates state
 
@@ -369,10 +400,10 @@ EMIC2& EMIC2::operator~()
 // Stops playback
 EMIC2& EMIC2::operator!()
 {
-    _emic2_io->listen();
+ //   _emic2_io.listen();
     // Sends stop command
-    _emic2_io->print('X');
-    while (_emic2_io->read() != ':') ;
+    _emic2_io.print('X');
+    while (_emic2_io.read() != ':') ;
 
     #ifdef VERBOSE
     Serial.println("Playback stopped");
@@ -468,10 +499,10 @@ void EMIC2::setVoice(uint8_t voice)
         _voice = voice;  // Updates state
 
         // Sends voice command
-        _emic2_io->print('N');
-        _emic2_io->print(_voice);
-        _emic2_io->print('\n');
-        while (_emic2_io->read() != ':') ;
+        _emic2_io.print('N');
+        _emic2_io.print(_voice);
+        _emic2_io.print('\n');
+        while (_emic2_io.read() != ':') ;
 
         #ifdef VERBOSE
         Serial.print("Voice set to ");
@@ -497,10 +528,10 @@ void EMIC2::setVolume(int8_t volume)
     else _volume = volume;
 
     // Sends volume command
-    _emic2_io->print('V');
-    _emic2_io->print(_volume);
-    _emic2_io->print('\n');
-    while (_emic2_io->read() != ':') ;
+    _emic2_io.print('V');
+    _emic2_io.print(_volume);
+    _emic2_io.print('\n');
+    while (_emic2_io.read() != ':') ;
 
     #ifdef VERBOSE
     Serial.print("Volume set to ");
@@ -535,10 +566,10 @@ void EMIC2::setRate(uint16_t rate)
     else _rate = rate;
 
     // Sends rate command
-    _emic2_io->print('W');
-    _emic2_io->print(_rate);
-    _emic2_io->print('\n');
-    while (_emic2_io->read() != ':') ;
+    _emic2_io.print('W');
+    _emic2_io.print(_rate);
+    _emic2_io.print('\n');
+    while (_emic2_io.read() != ':') ;
 
     #ifdef VERBOSE
     Serial.print("Rate set to ");
@@ -572,10 +603,10 @@ void EMIC2::setLanguage(uint8_t language)
         _language = language; // Updates state
 
         // Sends language command
-        _emic2_io->print('L');
-        _emic2_io->print(_language);
-        _emic2_io->print('\n');
-        while (_emic2_io->read() != ':') ;
+        _emic2_io.print('L');
+        _emic2_io.print(_language);
+        _emic2_io.print('\n');
+        while (_emic2_io.read() != ':') ;
 
         #ifdef VERBOSE
         Serial.print("Language set to ");
@@ -600,10 +631,10 @@ void EMIC2::setParser(uint8_t parser)
         _parser = parser;  // Updates state
 
         // Sends parser command
-        _emic2_io->print('P');
-        _emic2_io->print(_parser);
-        _emic2_io->print('\n');
-        while (_emic2_io->read() != ':') ;
+        _emic2_io.print('P');
+        _emic2_io.print(_parser);
+        _emic2_io.print('\n');
+        while (_emic2_io.read() != ':') ;
 
         #ifdef VERBOSE
         Serial.print("Parser set to ");
@@ -624,8 +655,8 @@ void EMIC2::setDefaultSettings()
     ready();
 
     // Sends restore command
-    _emic2_io->print("R\n");
-    while (_emic2_io->read() != ':') ;
+    _emic2_io.print("R\n");
+    while (_emic2_io.read() != ':') ;
 
     // Restores data members
     _paused = 0;
@@ -648,11 +679,11 @@ void EMIC2::getCurrentSettings()
     ready();
 
     // Sends the print settings command
-    _emic2_io->print("C\n");
+    _emic2_io.print("C\n");
     delayMicroseconds(200);  // Waits for response. Appropriate for the specific command
-    while ( _emic2_io->available() ) Serial.print((char)_emic2_io->read());
+    while ( _emic2_io.available() ) Serial.print((char)_emic2_io.read());
     Serial.println();
-    _emic2_io->flush();
+    _emic2_io.flush();
 }
 
 // Prints to the serial port the version information of the Emic 2 Module
@@ -664,9 +695,9 @@ void EMIC2::getVInfo()
     ready();
 
     // Sends the print version info command
-    _emic2_io->print("I\n");
+    _emic2_io.print("I\n");
     delayMicroseconds(3400);  // Waits for response. Appropriate for the specific command
-    while ( _emic2_io->available() ) Serial.print((char)_emic2_io->read());
+    while ( _emic2_io.available() ) Serial.print((char)_emic2_io.read());
     Serial.println();
-    _emic2_io->flush();
+    _emic2_io.flush();
 }
