@@ -1,9 +1,14 @@
 #!/opt/local/bin/perl
 
-$basename ="cn";
+# remove old .txt files prior to creating them
+
+$basename ="nc";
 $infilename ="allQuips.txt";
 $extension = ".txt";
-$countfile = "cn000.txt";
+$countfile = $basename . "000" . $extension;
+$remfiles = $basename . "*" . $extension;
+
+unlink glob "$remfiles";
 open (SOURCE, "<$infilename");
 $quipCount = 0;
 while (<SOURCE>)
