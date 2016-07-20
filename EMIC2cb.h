@@ -21,7 +21,7 @@
 
 #include <Arduino.h>
 //#include <SoftwareSerial.h>
-#include <SDcb.h>
+#include <SD.h>
 #include <string.h>
 
 // #define VERBOSE true // Use this if you want verbose output of the operations executed
