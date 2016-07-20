@@ -1,6 +1,12 @@
 /*
  * CordieBot software
  * 
+ * 07/19/16
+ * Reverted to SD library downloaded from ladyada.  When downloading, be sure to change SD-MASTER to SD, so
+ * standard Arduino SD files will not be used.
+ * Use input from Analog pin as a seed to the "random" number generator.
+ * Comment out use clock define
+ * 
  * 07/06/16 version 003
  * Attempted to integrate clock, but could not.
  * Changed plan to speak random statements.
@@ -26,7 +32,7 @@
 
 //#define debug   // debug statements in main loop
 //#define debug_lights  // debug statements for lights
-#define use_clock
+//#define use_clock
 #define use_lights
 
 #include <avr/pgmspace.h>
@@ -40,12 +46,13 @@
 #include "Adafruit_TLC59711.h"
 #endif
 #include <SPI.h>
-#include "SDcb.h"
+#include "SD.h"
 #include "EMIC2cb.h"
 
 #define cap_sw 7
 #define cooling A5
 #define ampControl A4
+#define seedSource A0
 
 EMIC2 emic;
 //#ifdef use_clock
@@ -158,6 +165,8 @@ void setup()                      // run once, when the sketch starts
   pinMode(cap_sw, INPUT);        // sets the digital pin as input
   pinMode(cooling, OUTPUT);
   pinMode(ampControl, OUTPUT);
+  pinMode(seedSource, INPUT);
+  randomSeed(analogRead(seedSource));
   currentState = HIGH;
 
   digitalWrite(ampControl, HIGH);

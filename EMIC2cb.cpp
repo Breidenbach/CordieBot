@@ -17,7 +17,7 @@
  */
 
 #include "EMIC2cb.h"
-#define VERBOSE
+//#define VERBOSE
 
 // Creates an instance of the EMIC2 class and initializes variables
 EMIC2::EMIC2()
