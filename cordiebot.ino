@@ -5,7 +5,6 @@
  * Reverted to SD library downloaded from ladyada.  When downloading, be sure to change SD-MASTER to SD, so
  * standard Arduino SD files will not be used.
  * Use input from Analog pin as a seed to the "random" number generator.
- * Comment out use clock define
  * 
  * 07/06/16 version 003
  * Attempted to integrate clock, but could not.
@@ -32,7 +31,7 @@
 
 //#define debug   // debug statements in main loop
 //#define debug_lights  // debug statements for lights
-//#define use_clock
+#define use_clock
 #define use_lights
 
 #include <avr/pgmspace.h>
