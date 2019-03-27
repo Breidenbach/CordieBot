@@ -19,3 +19,8 @@ It includes the following hardware:
   - along with assorted wires, nuts & bolts, and connectors.
   
 Hal Breidenbach is retired from several careers working with computers. He started in high school writing an amortization program in GATE for a computer in Old Main on the campus of Wayne State University in Detroit. He wrote software for mainframes in Cobol and 360/370 assembler for insurance, financial, and automotive companies as well as for the Stroh Brewery.  For nine years he ran a retail computer store, Spectrum Computers, in Lathrup Village, Michigan, selling Atari, Apple, Compaq, and Altos computers and software, and while doing that designed hardware and software for a fast food point of sale system based on the S-100 bus architecture.  After closing the store he worked on communications and pharmacy applications for Kmart, went to Oakland University in Rochester for a Masters in Computer Systems Engineering, and finally retired from Delphi Automotive after working on engine and transmission software.  Now living in Ann Arbor, he keeps up his software and hardware interests with robots and other projects using small computers.
+
+
+SUPERCEDED!
+
+This project is no longer active, and has been superceded by a new version using a Raspberry Pi.  The new version is in the repository https://github.com/Breidenbach/Cordiebot2
